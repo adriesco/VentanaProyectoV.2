@@ -12,11 +12,9 @@ public class Engine extends JFrame implements ActionListener {
 			reset, info, owner, casio;
 	private JButton B2, B8, B10, B16;
 	private JButton A, B, C, D, E, F;
-	private JLabel baseLabel;
-	private BaseActual baseActual = BaseActual.B10;
 
 	private enum ButtonType {
-		REGULAR, OPERATOR, BASE, MARCA
+		REGULAR, OPERATOR, BASE, MARCA, HEXADECIMAL, INFO
 	}
 
 	private enum BaseActual {
@@ -31,6 +29,19 @@ public class Engine extends JFrame implements ActionListener {
 		this.setSettings();
 		this.addActionEvent();
 	}
+	
+	/**
+	 * Metodo addActionEvent
+	 */
+	public void addActionEvent() {
+		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
+				this.n1, this.n2, this.n3, this.restar, this.reset, this.n0, this.igual, this.suma, this.borrarnumero,
+				this.B2, this.B8, this.B10, this.B16, this.D, this.E, this.F, this.info, this.A, this.B, this.C,
+				this.owner };
+		for (JButton button : buttons) {
+			button.addActionListener(this);
+		}
+	}
 
 	/**
 	 * Metodo setSettings
@@ -41,23 +52,31 @@ public class Engine extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(null);
 
 		this.contentPanel = new JPanel(new BorderLayout());
+		this.contentPanel.setBackground(new Color(173, 216, 230));
 		this.contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		this.panelNorte = new JPanel(new BorderLayout());
+		this.panelNorte.setBackground(new Color(173, 216, 230));
+
 		this.panelSur = new JPanel(new BorderLayout());
+
 		this.displayPanel = new JPanel(new FlowLayout());
+
 		this.PanelCasio = new JPanel(new FlowLayout());
+		this.PanelCasio.setBackground(new Color(173, 216, 230));
+
 		this.PanelBase = new JPanel(new FlowLayout());
+		this.PanelBase.setBackground(new Color(173, 216, 230));
+
 		this.buttonPanel = new JPanel(new GridLayout(8, 4, 5, 5));
+		this.buttonPanel.setBackground(new Color(173, 216, 230));
 		this.display = new JTextField(20);
 		this.display.setEditable(false);
-		this.display.setFont(new Font("Arial", Font.PLAIN, 18));
-		this.display.setHorizontalAlignment(JTextField.RIGHT);
+		this.display.setFont(new Font("Arial", Font.BOLD, 18));
+		this.display.setHorizontalAlignment(JTextField.LEFT);
+		this.displayPanel.setBackground(new Color(173, 216, 230));
+		this.display.setBorder(BorderFactory.createLineBorder(new Color(135, 206, 235), 1));
 		this.displayPanel.add(this.display);
-
-		JLabel baseLabel = new JLabel("Base : decimal");
-		baseLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-		this.PanelBase.add(baseLabel);
 
 		this.n0 = new JButton("0");
 		this.n1 = new JButton("1");
@@ -103,6 +122,11 @@ public class Engine extends JFrame implements ActionListener {
 			} else if (button == this.B2 || button == this.B8 || button == this.B10 || button == this.B16) {
 				this.setFeaturesButton(button, ButtonType.BASE);
 
+			} else if (button == this.A || button == this.B || button == this.C || button == this.D || button == this.E
+					|| button == this.F) {
+				this.setFeaturesButton(button, ButtonType.HEXADECIMAL);
+			} else if (button == this.owner || button == this.info) {
+				this.setFeaturesButton(button, ButtonType.INFO);
 			} else {
 				this.setFeaturesButton(button, ButtonType.REGULAR);
 			}
@@ -129,31 +153,17 @@ public class Engine extends JFrame implements ActionListener {
 	public void operation() {
 		switch (this.operation) {
 		case '+':
-			this.result = this.num1 + this.num2;
+			result = num1 + num2;
 			break;
 		case '-':
-			this.result = this.num1 - this.num2;
+			result = num1 - num2;
 			break;
-		case 'x':
-			this.result = this.num1 * this.num2;
+		case '×':
+			result = num1 * num2;
 			break;
-		case '/':
-			this.result = this.num1 / this.num2;
+		case '÷':
+			result = num1 / num2;
 			break;
-
-		}
-	}
-
-	/**
-	 * Metodo addActionEvent
-	 */
-	public void addActionEvent() {
-		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
-				this.n1, this.n2, this.n3, this.restar, this.reset, this.n0, this.igual, this.suma, this.borrarnumero,
-				this.B2, this.B8, this.B10, this.B16, this.D, this.E, this.F, this.info, this.A, this.B, this.C,
-				this.owner };
-		for (JButton button : buttons) {
-			button.addActionListener(this);
 		}
 	}
 
@@ -166,19 +176,27 @@ public class Engine extends JFrame implements ActionListener {
 	public void setFeaturesButton(JButton _button, ButtonType _type) {
 		switch (_type) {
 		case REGULAR:
-			_button.setBackground(Color.LIGHT_GRAY);
-			_button.setForeground(Color.BLACK);
+			_button.setBackground(new Color(173, 216, 230));
+			_button.setForeground(Color.WHITE);
 			break;
 		case OPERATOR:
-			_button.setBackground(Color.GRAY);
+			_button.setBackground(new Color(70, 130, 180));
 			_button.setForeground(Color.WHITE);
 			break;
 		case BASE:
-			_button.setBackground(Color.PINK);
+			_button.setBackground(new Color(144, 238, 144)); 
+			_button.setForeground(Color.BLACK);
+			break;
+		case HEXADECIMAL:
+			_button.setBackground(new Color(30, 144, 255)); 
 			_button.setForeground(Color.WHITE);
 			break;
+		case INFO:
+			_button.setBackground(new Color(138, 43, 226));
+			_button.setForeground(Color.WHITE);
+			break;	
 		}
-		_button.setFont(new Font("Arial", Font.BOLD, 16));
+		_button.setFont(new Font("Arial", Font.BOLD, 18));
 		_button.setOpaque(true);
 		_button.setBorderPainted(false);
 	}
@@ -187,9 +205,7 @@ public class Engine extends JFrame implements ActionListener {
 	 * Metodo que reseta el display
 	 */
 	private void resetDisplay() {
-
 		display.setText("");
-
 	}
 
 	/**

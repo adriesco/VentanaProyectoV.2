@@ -151,24 +151,23 @@ public class Engine extends JFrame implements ActionListener {
 	 * Metodo operation
 	 */
 	public void operation() {
-	    switch (this.operation) {
-	        case '+':
-	            result = num1 + num2;
-	            break;
-	        case '-':
-	            result = num1 - num2;
-	            break;
-	        case '*':
-	            result = num1 * num2;
-	            break;
-	        case '/': 
-	            result = num1 / num2;
-	            break;
-	        default:
-	            throw new UnsupportedOperationException("Operación no soportada");
-	    }
+		switch (this.operation) {
+		case '+':
+			result = num1 + num2;
+			break;
+		case '-':
+			result = num1 - num2;
+			break;
+		case '*':
+			result = num1 * num2;
+			break;
+		case '/':
+			result = num1 / num2;
+			break;
+		default:
+			throw new UnsupportedOperationException("Operación no soportada");
+		}
 	}
-
 
 	/**
 	 * Metodo setFeaturesButton
@@ -215,54 +214,84 @@ public class Engine extends JFrame implements ActionListener {
 	 * Metodo que muestra los numeros y las operaciones en el display
 	 */
 	public void actionPerformed(ActionEvent e) {
-	    Object operador = e.getSource();
-	    String inputText = e.getActionCommand();
+		Object operador = e.getSource();
+		String inputText = e.getActionCommand();
 
-	    if (operador == reset) {
-	        resetDisplay();
-	        num1 = 0;
-	        num2 = 0;
-	        operation = '\0'; // Resetea la operación
-	    } else if (operador == igual) {
-	        try {
-	            String[] partes = display.getText().split(" ");
-	            if (partes.length == 3) {
-	                num1 = Double.parseDouble(partes[0]);
-	                operation = partes[1].charAt(0);
-	                num2 = Double.parseDouble(partes[2]);
+		if (operador == reset) {
+			resetDisplay();
+			num1 = 0;
+			num2 = 0;
+			operation = '\0';
+		} else if (operador == igual) {
+			try {
+				String[] partes = display.getText().split(" ");
+				if (partes.length == 3) {
+					num1 = Double.parseDouble(partes[0]);
+					operation = partes[1].charAt(0);
+					num2 = Double.parseDouble(partes[2]);
 
-	                if (operation == '÷' && num2 == 0) {
-	                    display.setText("No se puede dividir entre 0");
-	                } else {
-	                    operation();
-	                    display.setText(String.valueOf(result));
-	                    num1 = result; 
-	                    num2 = 0;     
-	                    operation = '\0'; 
-	                }
-	            } else {
-	                display.setText("Error");
-	            }
-	        } catch (Exception ex) {
-	            display.setText("Error");
-	        }
-	    } else if (operador == suma || operador == dividir || operador == multiplicar || operador == restar) {
-	        String currentText = display.getText();
-	        if (!currentText.isEmpty() && !currentText.endsWith(" ")) {
-	            if (operador == multiplicar) {
-	                display.setText(currentText + " * ");
-	            } else if (operador == dividir) {
-	                display.setText(currentText + " / ");
-	            } else {
-	                display.setText(currentText + " " + inputText + " ");
-	            }
-	        } else if (operador == restar && (currentText.isEmpty() || currentText.endsWith(" "))) {
-	            display.setText(currentText + "-"); // Permite usar un número negativo
-	        }
-	    } else {
-	        display.setText(display.getText() + inputText); // Agrega el número presionado al display
-	    }
+					if (operation == '÷' && num2 == 0) {
+						display.setText("No se puede dividir entre 0");
+					} else {
+						operation();
+						display.setText(String.valueOf(result));
+						num1 = result;
+						num2 = 0;
+						operation = '\0';
+					}
+				} else {
+					display.setText("Error");
+				}
+			} catch (Exception ex) {
+				display.setText("Error");
+			}
+		} else if (operador == suma || operador == dividir || operador == multiplicar || operador == restar) {
+			String currentText = display.getText();
+			if (!currentText.isEmpty() && !currentText.endsWith(" ")) {
+				if (operador == multiplicar) {
+					display.setText(currentText + " * ");
+				} else if (operador == dividir) {
+					display.setText(currentText + " / ");
+				} else {
+					display.setText(currentText + " " + inputText + " ");
+				}
+			} else if (operador == restar && (currentText.isEmpty() || currentText.endsWith(" "))) {
+				display.setText(currentText + "-"); // Permite usar un número negativo
+			}
+		} else if (operador == this.owner) {
+			JFrame ownerWindow = new JFrame("Información del Creador");
+			ownerWindow.setSize(400, 200);
+			ownerWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			ownerWindow.setLocationRelativeTo(this);
+
+			JPanel panel = new JPanel(new FlowLayout());
+			JLabel label = new JLabel("Desarrollado por Adrián Escolar");
+			
+			label.setFont(new Font("Arial", Font.PLAIN, 16));
+			panel.add(label);
+
+			ownerWindow.add(panel);
+			ownerWindow.setVisible(true);
+		} else if (operador == this.info) {
+		    JFrame infoWindow = new JFrame("Información del Programa");
+		    infoWindow.setSize(500, 300); 
+		    infoWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		    infoWindow.setLocationRelativeTo(this);
+
+		    JPanel panel = new JPanel(new BorderLayout());
+		    JLabel label = new JLabel("<html>Esta calculadora admite operaciones con números:<br>"
+		            + "- Positivos<br>"
+		            + "- Negativos<br>"
+		            + "- Diferentes bases (B2, B8, B10, B16)<br>"
+		            + "Además, soporta números hexadecimales.<br></html>");
+		    label.setFont(new Font("Arial", Font.PLAIN, 16));
+		    panel.add(label, BorderLayout.CENTER);
+
+		    infoWindow.add(panel);
+		    infoWindow.setVisible(true);
+		} else {
+			display.setText(display.getText() + inputText); // Agrega el número presionado al display
+		}
 	}
-
 
 }

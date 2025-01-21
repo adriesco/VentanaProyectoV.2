@@ -22,16 +22,22 @@ public class Engine extends JFrame implements ActionListener {
 
 	}
 
+	private BaseActual baseActual = BaseActual.B10;
+	private JLabel infobase;
+
 	private double num1, num2, result;
 	private char operation;
 
+	/*
+	 * Constructora de la clase
+	 */
 	public Engine() {
 		this.setSettings();
 		this.addActionEvent();
 	}
 
-	/**
-	 * Metodo addActionEvent
+	/*
+	 * Metodo que agrega un AcctionListener a los botones
 	 */
 	public void addActionEvent() {
 		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
@@ -43,8 +49,8 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
-	/**
-	 * Metodo setSettings
+	/*
+	 * Metodo para configurar los parametros principales de la calculadora
 	 */
 	public void setSettings() {
 		this.setSize(400, 450);
@@ -77,6 +83,10 @@ public class Engine extends JFrame implements ActionListener {
 		this.displayPanel.setBackground(new Color(173, 216, 230));
 		this.display.setBorder(BorderFactory.createLineBorder(new Color(135, 206, 235), 1));
 		this.displayPanel.add(this.display);
+
+		JLabel baseLabel = new JLabel("Estas en Base:Decimal");
+		baseLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		this.PanelBase.add(baseLabel);
 
 		this.n0 = new JButton("0");
 		this.n1 = new JButton("1");
@@ -147,8 +157,8 @@ public class Engine extends JFrame implements ActionListener {
 		this.setVisible(true);
 	}
 
-	/**
-	 * Metodo operation
+	/*
+	 * Metodo que independientemente del operador te realiza una operacion u otra
 	 */
 	public void operation() {
 		switch (this.operation) {
@@ -170,10 +180,12 @@ public class Engine extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * Metodo setFeaturesButton
+	 * Método para establecer las características visuales de los botones (colores,
+	 * fuente, etc.) según el tipo de botón (Regular, Operador, Base, Hexadecimal,
+	 * Info).
 	 * 
-	 * @param _button
-	 * @param _type
+	 * @param _button El botón al que se le configurarán las características.
+	 * @param _type   El tipo de botón, utilizado para definir el estilo visual.
 	 */
 	public void setFeaturesButton(JButton _button, ButtonType _type) {
 		switch (_type) {
@@ -211,30 +223,36 @@ public class Engine extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * Metodo que muestra los numeros y las operaciones en el display
+	 * Método que maneja las acciones cuando un botón es presionado, incluyendo la
+	 * entrada de números, la ejecución de operaciones y la apertura de ventanas de
+	 * información.
+	 * 
+	 * @param e El evento de acción asociado al botón presionado.
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Object operador = e.getSource();
 		String inputText = e.getActionCommand();
+		String currentText = display.getText();
 
 		if (operador == reset) {
 			resetDisplay();
 			num1 = 0;
 			num2 = 0;
 			operation = '\0';
+
 		} else if (operador == igual) {
 			try {
-				String[] partes = display.getText().split(" ");
+				String[] partes = currentText.split(" ");
 				if (partes.length == 3) {
-					num1 = Double.parseDouble(partes[0]);
+					num1 = Integer.parseInt(partes[0]);
 					operation = partes[1].charAt(0);
-					num2 = Double.parseDouble(partes[2]);
+					num2 = Integer.parseInt(partes[2]);
 
-					if (operation == '÷' && num2 == 0) {
+					if (operation == '/' && num2 == 0) {
 						display.setText("No se puede dividir entre 0");
 					} else {
 						operation();
-						display.setText(String.valueOf(result));
+						display.setText(String.valueOf((int) result));
 						num1 = result;
 						num2 = 0;
 						operation = '\0';
@@ -246,7 +264,6 @@ public class Engine extends JFrame implements ActionListener {
 				display.setText("Error");
 			}
 		} else if (operador == suma || operador == dividir || operador == multiplicar || operador == restar) {
-			String currentText = display.getText();
 			if (!currentText.isEmpty() && !currentText.endsWith(" ")) {
 				if (operador == multiplicar) {
 					display.setText(currentText + " * ");
@@ -258,40 +275,91 @@ public class Engine extends JFrame implements ActionListener {
 			} else if (operador == restar && (currentText.isEmpty() || currentText.endsWith(" "))) {
 				display.setText(currentText + "-"); // Permite usar un número negativo
 			}
-		} else if (operador == this.owner) {
+		} else if (operador == owner) {
 			JFrame ownerWindow = new JFrame("Información del Creador");
 			ownerWindow.setSize(400, 200);
 			ownerWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			ownerWindow.setLocationRelativeTo(this);
 
 			JPanel panel = new JPanel(new FlowLayout());
-			JLabel label = new JLabel("Desarrollado por Adrián Escolar");
-			
-			label.setFont(new Font("Arial", Font.PLAIN, 16));
+			JLabel label = new JLabel("<html>Desarrollado por Adrián Escolar<br>Estudiante de 2 DAM</html>");
+			label.setFont(new Font("Arial", Font.BOLD, 16));
 			panel.add(label);
 
 			ownerWindow.add(panel);
 			ownerWindow.setVisible(true);
-		} else if (operador == this.info) {
-		    JFrame infoWindow = new JFrame("Información del Programa");
-		    infoWindow.setSize(500, 300); 
-		    infoWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		    infoWindow.setLocationRelativeTo(this);
+		} else if (operador == info) {
+			JFrame infoWindow = new JFrame("Información de la Calculadora");
+			infoWindow.setSize(500, 300);
+			infoWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			infoWindow.setLocationRelativeTo(this);
 
-		    JPanel panel = new JPanel(new BorderLayout());
-		    JLabel label = new JLabel("<html>Esta calculadora admite operaciones con números:<br>"
-		            + "- Positivos<br>"
-		            + "- Negativos<br>"
-		            + "- Diferentes bases (B2, B8, B10, B16)<br>"
-		            + "Además, soporta números hexadecimales.<br></html>");
-		    label.setFont(new Font("Arial", Font.PLAIN, 16));
-		    panel.add(label, BorderLayout.CENTER);
+			JPanel panel = new JPanel(new BorderLayout());
+			JLabel label = new JLabel("<html>Esta calculadora permite operaciones con números:<br>" + "- Positivos<br>"
+					+ "- Negativos<br>" + "- Diferentes bases (B2, B8, B10, B16)<br>"
+					+ "Además, soporta números hexadecimales.<br></html>");
+			label.setFont(new Font("Arial", Font.BOLD, 16));
+			panel.add(label, BorderLayout.CENTER);
 
-		    infoWindow.add(panel);
-		    infoWindow.setVisible(true);
+			infoWindow.add(panel);
+			infoWindow.setVisible(true);
+
+			// Cambio de base
+		} else if (operador == B2 || operador == B8 || operador == B10 || operador == B16) {
+			display.setText(cambioBase(operador));
+			
 		} else {
 			display.setText(display.getText() + inputText); // Agrega el número presionado al display
 		}
+	}
+
+	public void actualizarBase(BaseActual base) {
+		this.baseActual = base;
+		this.PanelBase.removeAll();
+
+		switch (base) {
+		case B2:
+			infobase = new JLabel("Estas en base binaria");
+			break;
+		case B8:
+			infobase = new JLabel("Estas en base octal");
+			break;
+		case B10:
+			infobase = new JLabel("Estas en base decimal");
+			break;
+		case B16:
+			infobase = new JLabel("Estas en base hexadecimal");
+			break;
+		default:
+			System.out.println("Error en la base");
+		}
+
+		infobase.setFont(new Font("Arial", Font.BOLD, 14));
+		this.PanelBase.add(infobase);
+		this.PanelBase.revalidate();
+		this.PanelBase.repaint();
+	}
+
+	public String cambioBase(Object operador) {
+		int number = 10;
+		try {
+			if (operador == B2) {
+				actualizarBase(BaseActual.B2);
+				return Integer.toBinaryString(number);
+			} else if (operador == B8) {
+				actualizarBase(BaseActual.B8);
+				return Integer.toOctalString(number);
+			} else if (operador == B10) {
+				actualizarBase(BaseActual.B10);
+				return Integer.toString(number);
+			} else if (operador == B16) {
+				actualizarBase(BaseActual.B16);
+				return Integer.toHexString(number).toUpperCase();
+			}
+		} catch (NumberFormatException e) {
+			this.display.setText("Error");
+		}
+		return "";
 	}
 
 }

@@ -29,7 +29,7 @@ public class Engine extends JFrame implements ActionListener {
 		this.setSettings();
 		this.addActionEvent();
 	}
-	
+
 	/**
 	 * Metodo addActionEvent
 	 */
@@ -106,7 +106,7 @@ public class Engine extends JFrame implements ActionListener {
 		this.E = new JButton("E");
 		this.F = new JButton("F");
 		this.info = new JButton("Info");
-		this.owner = new JButton("Owner");
+		this.owner = new JButton("Own");
 		this.casio = new JButton("CASIO");
 
 		JButton[] buttons = { this.B2, this.B8, this.B10, this.B16, this.D, this.E, this.F, this.info, this.A, this.B,
@@ -151,21 +151,24 @@ public class Engine extends JFrame implements ActionListener {
 	 * Metodo operation
 	 */
 	public void operation() {
-		switch (this.operation) {
-		case '+':
-			result = num1 + num2;
-			break;
-		case '-':
-			result = num1 - num2;
-			break;
-		case '×':
-			result = num1 * num2;
-			break;
-		case '÷':
-			result = num1 / num2;
-			break;
-		}
+	    switch (this.operation) {
+	        case '+':
+	            result = num1 + num2;
+	            break;
+	        case '-':
+	            result = num1 - num2;
+	            break;
+	        case '*':
+	            result = num1 * num2;
+	            break;
+	        case '/': 
+	            result = num1 / num2;
+	            break;
+	        default:
+	            throw new UnsupportedOperationException("Operación no soportada");
+	    }
 	}
+
 
 	/**
 	 * Metodo setFeaturesButton
@@ -184,17 +187,17 @@ public class Engine extends JFrame implements ActionListener {
 			_button.setForeground(Color.WHITE);
 			break;
 		case BASE:
-			_button.setBackground(new Color(144, 238, 144)); 
+			_button.setBackground(new Color(144, 238, 144));
 			_button.setForeground(Color.BLACK);
 			break;
 		case HEXADECIMAL:
-			_button.setBackground(new Color(30, 144, 255)); 
+			_button.setBackground(new Color(30, 144, 255));
 			_button.setForeground(Color.WHITE);
 			break;
 		case INFO:
 			_button.setBackground(new Color(138, 43, 226));
 			_button.setForeground(Color.WHITE);
-			break;	
+			break;
 		}
 		_button.setFont(new Font("Arial", Font.BOLD, 18));
 		_button.setOpaque(true);
@@ -212,44 +215,54 @@ public class Engine extends JFrame implements ActionListener {
 	 * Metodo que muestra los numeros y las operaciones en el display
 	 */
 	public void actionPerformed(ActionEvent e) {
-		Object operador = e.getSource();
-		String inputText = e.getActionCommand();
+	    Object operador = e.getSource();
+	    String inputText = e.getActionCommand();
 
-		if (operador == reset) {
-			resetDisplay();
-		} else if (operador == igual) {
-			try {
-				String[] partes = display.getText().split(" ");
-				num1 = Integer.parseInt(partes[0]);
-				operation = partes[1].charAt(0);
-				num2 = Integer.parseInt(partes[2]);
+	    if (operador == reset) {
+	        resetDisplay();
+	        num1 = 0;
+	        num2 = 0;
+	        operation = '\0'; // Resetea la operación
+	    } else if (operador == igual) {
+	        try {
+	            String[] partes = display.getText().split(" ");
+	            if (partes.length == 3) {
+	                num1 = Double.parseDouble(partes[0]);
+	                operation = partes[1].charAt(0);
+	                num2 = Double.parseDouble(partes[2]);
 
-				if (operation == '÷' && num2 == 0) {
-					display.setText("No se puede dividir entre 0");
-				} else {
-					operation();
-					display.setText(String.valueOf(result));
-				}
-			} catch (Exception ex) {
-				display.setText("Error");
-			}
-		} else if (operador == suma || operador == dividir || operador == multiplicar) {
-			display.setText(display.getText() + " " + inputText + " ");
-		} else if (operador == restar) {
-			String currentText = display.getText();
-			if (currentText.isEmpty() || currentText.endsWith(" ")) {
-				display.setText(currentText + "-");
-			} else {
-				display.setText(currentText + " " + inputText + " ");
-			}
-		} else if (operador == borrarnumero) {
-			String text = display.getText();
-			if (text.length() > 0) {
-				display.setText(text.substring(0, text.length() - 1));// Si hay un caracter en el display lo borra
-			}
-		} else {
-			display.setText(display.getText() + inputText); // Agrega el numero presionado al display
-		}
+	                if (operation == '÷' && num2 == 0) {
+	                    display.setText("No se puede dividir entre 0");
+	                } else {
+	                    operation();
+	                    display.setText(String.valueOf(result));
+	                    num1 = result; 
+	                    num2 = 0;     
+	                    operation = '\0'; 
+	                }
+	            } else {
+	                display.setText("Error");
+	            }
+	        } catch (Exception ex) {
+	            display.setText("Error");
+	        }
+	    } else if (operador == suma || operador == dividir || operador == multiplicar || operador == restar) {
+	        String currentText = display.getText();
+	        if (!currentText.isEmpty() && !currentText.endsWith(" ")) {
+	            if (operador == multiplicar) {
+	                display.setText(currentText + " * ");
+	            } else if (operador == dividir) {
+	                display.setText(currentText + " / ");
+	            } else {
+	                display.setText(currentText + " " + inputText + " ");
+	            }
+	        } else if (operador == restar && (currentText.isEmpty() || currentText.endsWith(" "))) {
+	            display.setText(currentText + "-"); // Permite usar un número negativo
+	        }
+	    } else {
+	        display.setText(display.getText() + inputText); // Agrega el número presionado al display
+	    }
 	}
+
 
 }

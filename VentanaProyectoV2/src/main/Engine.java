@@ -339,4 +339,27 @@ public class Engine extends JFrame implements ActionListener {
 		this.PanelBase.revalidate();
 		this.PanelBase.repaint();
 	}
+	
+	public String cambioBase(Object operador) {
+		int number = 10;
+		try {
+			if (operador == B2) {
+				actualizarBase(BaseActual.B2);
+				return Integer.toBinaryString(number);
+			} else if (operador == B8) {
+				actualizarBase(BaseActual.B8);
+				return Integer.toOctalString(number);
+			} else if (operador == B10) {
+				actualizarBase(BaseActual.B10);
+				return Integer.toString(number);
+			} else if (operador == B16) {
+				actualizarBase(BaseActual.B16);
+				return Integer.toHexString(number).toUpperCase();
+			}
+		} catch (NumberFormatException e) {
+			this.display.setText("Error");
+		}
+		return "";
+	}
+
 }

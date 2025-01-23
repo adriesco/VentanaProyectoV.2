@@ -8,8 +8,7 @@ import javax.swing.border.EmptyBorder;
 public class Engine extends JFrame implements ActionListener {
 	private JPanel contentPanel, panelSur, panelNorte, PanelCasio, PanelBase, displayPanel, buttonPanel;
 	private JTextField display;
-	private JButton n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, dividir, multiplicar, restar, suma, igual, borrarnumero,
-			reset, info, owner, casio;
+	private JButton n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, dividir, multiplicar, restar, suma, igual, borrarnumero,reset, info, owner, casio;
 	private JButton B2, B8, B10, B16;
 	private JButton A, B, C, D, E, F;
 
@@ -312,7 +311,12 @@ public class Engine extends JFrame implements ActionListener {
 			display.setText(display.getText() + inputText); // Agrega el número presionado al display
 		}
 	}
-
+	
+	
+	/**
+	 * Metodo que cambia de base
+	 * @param base
+	 */
 	public void actualizarBase(BaseActual base) {
 		this.baseActual = base;
 		this.PanelBase.removeAll();
@@ -336,12 +340,18 @@ public class Engine extends JFrame implements ActionListener {
 
 		infobase.setFont(new Font("Arial", Font.BOLD, 14));
 		this.PanelBase.add(infobase);
-		this.PanelBase.revalidate();
+		this.PanelBase.revalidate();//Para que cambie de base
 		this.PanelBase.repaint();
 	}
 	
+	
+	/**
+	 * Metodo que dependiendo de la base , pasa el numero a su correspondiente base
+	 * @param operador
+	 * @return
+	 */
 	public String cambioBase(Object operador) {
-		int number = 10;
+		int number = pasarDecimal();
 		try {
 			if (operador == B2) {
 				actualizarBase(BaseActual.B2);
@@ -357,9 +367,87 @@ public class Engine extends JFrame implements ActionListener {
 				return Integer.toHexString(number).toUpperCase();
 			}
 		} catch (NumberFormatException e) {
-			this.display.setText("Error");
+			this.display.setText("Base no encotrada");
 		}
 		return "";
 	}
+
+	public void operationBase(BaseActual base) {
+		switch (base) {
+		case B2:
+			this.operationBinario();
+			break;
+		case B8:
+			this.operationOctal();
+			break;
+		case B10:
+			this.operationDecimal();
+			break;
+		case B16:
+			this.operationHexadecimal();
+			break;
+		}
+	}
+
+	// Convierte el número del display al formato hexadecimal
+	private void operationHexadecimal() {
+	    try {
+	        int number = Integer.parseInt(display.getText());
+	        display.setText(Integer.toHexString(number).toUpperCase());
+	    } catch (NumberFormatException e) {
+	        display.setText("Error en hexadecimal");
+	    }
+	}
+
+	// Convierte el número del display al formato decimal
+	private void operationDecimal() {
+	    try {
+	        int number = pasarDecimal();
+	        display.setText(Integer.toString(number));
+	    } catch (NumberFormatException e) {
+	        display.setText("Error en decimal");
+	    }
+	}
+
+	// Convierte el número del display al formato octal
+	private void operationOctal() {
+	    try {
+	        int number = Integer.parseInt(display.getText());
+	        display.setText(Integer.toOctalString(number));
+	    } catch (NumberFormatException e) {
+	        display.setText("Error en octal");
+	    }
+	}
+
+	// Convierte el número del display al formato binario
+	private void operationBinario() {
+	    try {
+	        int number = Integer.parseInt(display.getText());
+	        display.setText(Integer.toBinaryString(number));
+	    } catch (NumberFormatException e) {
+	        display.setText("Error en binario");
+	    }
+	}
+
+	// Convierte el número actual del display a decimal según la base seleccionada
+	private int pasarDecimal() {
+	    try {
+	        String text = display.getText();
+	        switch (baseActual) {
+	            case B2:
+	                return Integer.parseInt(text, 2); 
+	            case B8:
+	                return Integer.parseInt(text, 8); 
+	            case B16:
+	                return Integer.parseInt(text, 16); 
+	            default:
+	                return Integer.parseInt(text); 
+	        }
+	    } catch (NumberFormatException e) {
+	        display.setText("Error al convertir");
+	        return 0;
+	    }
+	}
+
 
 }

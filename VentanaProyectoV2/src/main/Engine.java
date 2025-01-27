@@ -2,6 +2,8 @@ package main;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URI;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -43,7 +45,7 @@ public class Engine extends JFrame implements ActionListener {
 		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
 				this.n1, this.n2, this.n3, this.restar, this.reset, this.n0, this.igual, this.suma, this.borrarnumero,
 				this.B2, this.B8, this.B10, this.B16, this.D, this.E, this.F, this.info, this.A, this.B, this.C,
-				this.owner };
+				this.owner , this.casio };
 		for (JButton button : buttons) {
 			button.addActionListener(this);
 		}
@@ -308,6 +310,12 @@ public class Engine extends JFrame implements ActionListener {
 			// Cambio de base
 			display.setText(cambioBase(operador));
 
+		}else if (operador == casio) {
+		    try {
+		        Desktop.getDesktop().browse(new URI("https://www.casio.com"));
+		    } catch (Exception ex) {
+		        ex.printStackTrace(); 
+		    }
 		} else {
 			display.setText(display.getText() + inputText); // Agrega el número presionado al display
 		}
@@ -401,8 +409,9 @@ public class Engine extends JFrame implements ActionListener {
 	/**
 	 * Realiza la operación en formato hexadecimal.
 	 */
-	private void operationHexadecimal() {
+	public void operationHexadecimal() {
 		try {
+			String num16 = null;
 			// Convertir los números binarios a enteros decimales
 			int num1 = Integer.parseInt(num16,8);
 			int num2 = Integer.parseInt(num16,8);
@@ -433,8 +442,8 @@ public class Engine extends JFrame implements ActionListener {
 			}
 
 			// Mostrar el resultado en binario
-			this.result = Integer.parseInt(Integer.toBinaryString(resultado), 2);
-			this.display.setText(Integer.toBinaryString(resultado));
+			this.result = Integer.parseInt(Integer.toHexString(resultado), 2);
+			this.display.setText(Integer.toHexString(resultado));
 
 		} catch (NumberFormatException e) {
 			this.display.setText("Error binario");
@@ -487,8 +496,8 @@ public class Engine extends JFrame implements ActionListener {
 			}
 
 			// Mostrar el resultado en binario
-			this.result = Integer.parseInt(Integer.toBinaryString(resultado), 2);
-			this.display.setText(Integer.toBinaryString(resultado));
+			this.result = Integer.parseInt(Integer.toOctalString(resultado), 2);
+			this.display.setText(Integer.toOctalString(resultado));
 
 		} catch (NumberFormatException e) {
 			this.display.setText("Error binario");

@@ -2,7 +2,9 @@ package main;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,8 +29,9 @@ public class Engine extends JFrame implements ActionListener {
 	private BaseActual baseActual = BaseActual.B10;
 	private JLabel infobase;
 
-	private double num1, num2, result;
+	private int num1, num2, result;
 	private char operation;
+	private String numero16, numero17;
 
 	/*
 	 * Constructora de la clase
@@ -45,7 +48,7 @@ public class Engine extends JFrame implements ActionListener {
 		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
 				this.n1, this.n2, this.n3, this.restar, this.reset, this.n0, this.igual, this.suma, this.borrarnumero,
 				this.B2, this.B8, this.B10, this.B16, this.D, this.E, this.F, this.info, this.A, this.B, this.C,
-				this.owner , this.casio };
+				this.owner, this.casio };
 		for (JButton button : buttons) {
 			button.addActionListener(this);
 		}
@@ -211,6 +214,8 @@ public class Engine extends JFrame implements ActionListener {
 			_button.setBackground(new Color(138, 43, 226));
 			_button.setForeground(Color.WHITE);
 			break;
+		default:
+			break;
 		}
 		_button.setFont(new Font("Arial", Font.BOLD, 18));
 		_button.setOpaque(true);
@@ -220,52 +225,66 @@ public class Engine extends JFrame implements ActionListener {
 	/*
 	 * Metodo que reseta el display
 	 */
-	private void resetDisplay() {
+	public void resetDisplay() {
 		display.setText("");
 	}
 
-	/**
-	 * Método que maneja las acciones cuando un botón es presionado, incluyendo la
-	 * entrada de números, la ejecución de operaciones y la apertura de ventanas de
-	 * información.
-	 * 
-	 * @param e El evento de acción asociado al botón presionado.
-	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object operador = e.getSource();
 		String inputText = e.getActionCommand();
-		String currentText = display.getText();
 
 		if (operador == reset) {
 			resetDisplay();
 			num1 = 0;
 			num2 = 0;
 			operation = '\0';
-
 		} else if (operador == igual) {
 			try {
-				String[] partes = currentText.split(" ");
+				String[] partes = display.getText().split(" ");
 				if (partes.length == 3) {
-					num1 = Integer.parseInt(partes[0]);
+					// Convertir números según la base actual
+					switch (baseActual) {
+					case B2:
+						num1 = Integer.parseInt(partes[0], 2);
+						num2 = Integer.parseInt(partes[2], 2);
+						break;
+					case B8:
+						num1 = Integer.parseInt(partes[0], 8);
+						num2 = Integer.parseInt(partes[2], 8);
+						break;
+					case B16:
+						num1 = Integer.parseInt(partes[0], 16);
+						num2 = Integer.parseInt(partes[2], 16);
+						break;
+					case B10:
+					default:
+						num1 = Integer.parseInt(partes[0]);
+						num2 = Integer.parseInt(partes[2]);
+						break;
+					}
+
 					operation = partes[1].charAt(0);
-					num2 = Integer.parseInt(partes[2]);
 
 					if (operation == '/' && num2 == 0) {
 						display.setText("No se puede dividir entre 0");
 					} else {
-						operation();
-						num1 = result;
-						num2 = 0;
-						operation = '\0';
+						operationBase(baseActual);
 					}
-
 				} else {
 					display.setText("Error");
 				}
 			} catch (Exception ex) {
 				display.setText("Error");
 			}
+		} else if (operador == B2 || operador == B8 || operador == B10 || operador == B16) {
+			// Cambiar la base y convertir el número actual
+			String resultado = cambioBase(operador);
+			if (!resultado.isEmpty()) {
+				display.setText(resultado);
+			}
 		} else if (operador == suma || operador == dividir || operador == multiplicar || operador == restar) {
+			String currentText = display.getText();
 			if (!currentText.isEmpty() && !currentText.endsWith(" ")) {
 				if (operador == multiplicar) {
 					display.setText(currentText + " * ");
@@ -275,113 +294,145 @@ public class Engine extends JFrame implements ActionListener {
 					display.setText(currentText + " " + inputText + " ");
 				}
 			} else if (operador == restar && (currentText.isEmpty() || currentText.endsWith(" "))) {
-				display.setText(currentText + "-"); // Permite usar un número negativo
+				display.setText(currentText + "-");
 			}
-		} else if (operador == owner) {
+		} else if (operador == this.owner) {
 			JFrame ownerWindow = new JFrame("Información del Creador");
 			ownerWindow.setSize(400, 200);
 			ownerWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			ownerWindow.setLocationRelativeTo(this);
 
 			JPanel panel = new JPanel(new FlowLayout());
-			JLabel label = new JLabel("<html>Desarrollado por Adrián Escolar<br>Estudiante de 2 DAM</html>");
-			label.setFont(new Font("Arial", Font.BOLD, 16));
+			JLabel label = new JLabel("Desarrollado por Adrián Escolar");
+
+			label.setFont(new Font("Arial", Font.PLAIN, 16));
 			panel.add(label);
 
 			ownerWindow.add(panel);
 			ownerWindow.setVisible(true);
-		} else if (operador == info) {
-			JFrame infoWindow = new JFrame("Información de la Calculadora");
+		} else if (operador == this.info) {
+			JFrame infoWindow = new JFrame("Información del Programa");
 			infoWindow.setSize(500, 300);
 			infoWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			infoWindow.setLocationRelativeTo(this);
 
 			JPanel panel = new JPanel(new BorderLayout());
-			JLabel label = new JLabel("<html>Esta calculadora permite operaciones con números:<br>" + "- Positivos<br>"
+			JLabel label = new JLabel("<html>Esta calculadora admite operaciones con números:<br>" + "- Positivos<br>"
 					+ "- Negativos<br>" + "- Diferentes bases (B2, B8, B10, B16)<br>"
 					+ "Además, soporta números hexadecimales.<br></html>");
-			label.setFont(new Font("Arial", Font.BOLD, 16));
+			label.setFont(new Font("Arial", Font.PLAIN, 16));
 			panel.add(label, BorderLayout.CENTER);
 
 			infoWindow.add(panel);
 			infoWindow.setVisible(true);
-
-		} else if (operador == B2 || operador == B8 || operador == B10 || operador == B16) {
-			// Cambio de base
-			display.setText(cambioBase(operador));
-
-		}else if (operador == casio) {
-		    try {
-		        Desktop.getDesktop().browse(new URI("https://www.casio.com"));
-		    } catch (Exception ex) {
-		        ex.printStackTrace(); 
-		    }
-		} else {
-			display.setText(display.getText() + inputText); // Agrega el número presionado al display
-		}
-	}
-
-	/**
-	 * Método que cambia de base.
-	 * 
-	 * @param base Nueva base a establecer.
-	 */
-	public void actualizarBase(BaseActual base) {
-		this.baseActual = base;
-		this.PanelBase.removeAll(); // Limpia el panel base
-
-		String mensajeBase;
-		switch (base) {
-		case B2:
-			mensajeBase = "Estás en base binaria";
-			break;
-		case B8:
-			mensajeBase = "Estás en base octal";
-			break;
-		case B10:
-			mensajeBase = "Estás en base decimal";
-			break;
-		case B16:
-			mensajeBase = "Estás en base hexadecimal";
-			break;
-		default:
-			mensajeBase = "Error en la base";
-		}
-
-		infobase = new JLabel(mensajeBase);
-		infobase.setFont(new Font("Arial", Font.BOLD, 14));
-		this.PanelBase.add(infobase);
-
-		this.PanelBase.revalidate(); // Actualiza el panel
-		this.PanelBase.repaint();
-	}
-
-	/**
-	 * Método que convierte el número actual del display a la base seleccionada.
-	 * 
-	 * @param operador Base a la que se desea convertir.
-	 * @return Número convertido como cadena.
-	 */
-	public String cambioBase(Object operador) {
-		int number = pasarDecimal(); // Convierte el valor actual a decimal
-		try {
-			if (operador == B2) {
-				actualizarBase(BaseActual.B2);
-				return Integer.toBinaryString(number);
-			} else if (operador == B8) {
-				actualizarBase(BaseActual.B8);
-				return Integer.toOctalString(number);
-			} else if (operador == B10) {
-				actualizarBase(BaseActual.B10);
-				return Integer.toString(number);
-			} else if (operador == B16) {
-				actualizarBase(BaseActual.B16);
-				return Integer.toHexString(number).toUpperCase();
+		} else if (operador == this.casio) {
+			try {
+				Desktop.getDesktop().browse(new URI("https://www.casio.com"));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-		} catch (NumberFormatException e) {
-			this.display.setText("Base no encontrada");
+		} else {
+			// Para números y otros caracteres
+			String currentText = display.getText();
+			boolean isValidInput = true;
+
+			// Validar entrada según la base actual
+			switch (baseActual) {
+			case B2:
+				isValidInput = inputText.matches("[0-1]");
+				break;
+			case B8:
+				isValidInput = inputText.matches("[0-7]");
+				break;
+			case B16:
+				isValidInput = inputText.matches("[0-9A-Fa-f]");
+				break;
+			case B10:
+				isValidInput = inputText.matches("[0-9]");
+				break;
+			}
+
+			if (isValidInput) {
+				display.setText(currentText + inputText);
+			}
 		}
-		return "";
+	}
+
+	public void actualizarBase(BaseActual base) {
+	    this.display.setText("");
+	    
+	    this.baseActual = base;
+	    this.PanelBase.removeAll(); // Limpia el panel base
+
+	    String mensajeBase;
+	    switch (base) {
+	        case B2:
+	            mensajeBase = "Estás en base binaria";
+	            break;
+	        case B8:
+	            mensajeBase = "Estás en base octal";
+	            break;
+	        case B10:
+	            mensajeBase = "Estás en base decimal";
+	            break;
+	        case B16:
+	            mensajeBase = "Estás en base hexadecimal";
+	            break;
+	        default:
+	            mensajeBase = "Error en la base";
+	    }
+
+	    infobase = new JLabel(mensajeBase);
+	    infobase.setFont(new Font("Arial", Font.BOLD, 14));
+	    this.PanelBase.add(infobase);
+
+	    this.PanelBase.revalidate(); // Actualiza el panel
+	    this.PanelBase.repaint();
+	    
+	    // Resetear los valores de operación
+	    num1 = 0;
+	    num2 = 0;
+	    operation = '\0';
+	}
+
+	public String cambioBase(Object operador) {
+	    if (display.getText().trim().isEmpty()) {
+	        actualizarBase(getBaseFromOperador(operador));
+	        return "";
+	    }
+	    
+	    int number = pasarDecimal(); // Convierte el valor actual a decimal
+	    String resultado = "";
+	    try {
+	        if (operador == B2) {
+	            actualizarBase(BaseActual.B2);
+	            return Integer.toBinaryString(number);
+	        } else if (operador == B8) {
+	            actualizarBase(BaseActual.B8);
+	            return Integer.toOctalString(number);
+	        } else if (operador == B10) {
+	            actualizarBase(BaseActual.B10);
+	            return Integer.toString(number);
+	        } else if (operador == B16) {
+	            actualizarBase(BaseActual.B16);
+	            return Integer.toHexString(number).toUpperCase();
+	        }
+	    } catch (NumberFormatException e) {
+	        this.display.setText("Base no encontrada");
+	    }
+	    return resultado;
+	}
+	
+	// Método auxiliar para obtener la base del operador
+	private BaseActual getBaseFromOperador(Object operador) {
+	    if (operador == B2) return BaseActual.B2;
+	    if (operador == B8) return BaseActual.B8;
+	    if (operador == B16) return BaseActual.B16;
+	    return BaseActual.B10; // default
 	}
 
 	/**
@@ -406,48 +457,40 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
-	/**
-	 * Realiza la operación en formato hexadecimal.
-	 */
 	public void operationHexadecimal() {
-		try {
-			String num16 = null;
-			// Convertir los números binarios a enteros decimales
-			int num1 = Integer.parseInt(num16,8);
-			int num2 = Integer.parseInt(num16,8);
-			int resultado = 0;
+	    try {
+	        int num1 = (int) this.num1;
+	        int num2 = (int) this.num2;
+	        int resultado = 0;
+	        switch (this.operation) {
+	            case '+':
+	                resultado = num1 + num2;
+	                break;
+	            case '-':
+	                resultado = num1 - num2;
+	                break;
+	            case '*':
+	                resultado = num1 * num2;
+	                break;
+	            case '/':
+	                if (num2 != 0) {
+	                    resultado = num1 / num2;
+	                } else {
+	                    this.display.setText("Error: División por cero");
+	                    return;
+	                }
+	                break;
+	            default:
+	                this.display.setText("Operación inválida");
+	                return;
+	        }
 
-			// Realizar la operación según el operador
-			switch (this.operation) {
-			case '+':
-				resultado = num1 + num2;
-				break;
-			case '-':
-				resultado = num1 - num2;
-				break;
-			case 'x':
-				resultado = num1 * num2;
-				break;
-			case '/':
-				if (num2 != 0) {
-					resultado = num1 / num2;
-				} else {
-					this.display.setText("Error");
-					return;
-				}
-				break;
-			default:
-				this.display.setText("Operación inválida");
-				return;
-			}
+	        // Mostrar el resultado en hexadecimal y convertir a mayúsculas
+	        this.display.setText(Integer.toHexString(resultado).toUpperCase());
 
-			// Mostrar el resultado en binario
-			this.result = Integer.parseInt(Integer.toHexString(resultado), 2);
-			this.display.setText(Integer.toHexString(resultado));
-
-		} catch (NumberFormatException e) {
-			this.display.setText("Error binario");
-		}
+	    } catch (NumberFormatException e) {
+	        this.display.setText("Error en la conversión hexadecimal");
+	    }
 	}
 
 	/**
@@ -455,23 +498,41 @@ public class Engine extends JFrame implements ActionListener {
 	 */
 	public void operationDecimal() {
 		try {
-			operation();
+			switch (this.operation) {
+			case '+':
+				result = num1 + num2;
+				break;
+			case '-':
+				result = num1 - num2;
+				break;
+			case 'x':
+				result = num1 * num2;
+				break;
+			case '/':
+				if (num2 != 0) {
+					result = num1 / num2;
+				} else {
+					this.display.setText("Error");
+					return;
+				}
+				break;
+			default:
+				this.display.setText("Operación inválida");
+				return;
+			}
+
+			this.display.setText(String.valueOf(result));
 		} catch (NumberFormatException e) {
 			this.display.setText("Error decimal");
 		}
 	}
 
-	/**
-	 * Realiza la operación en formato octal.
-	 */
 	public void operationOctal() {
 		try {
-			// Convertir los números binarios a enteros decimales
-			int num1 = Integer.parseInt(Integer.toString((int) this.num1), 8);
-			int num2 = Integer.parseInt(Integer.toString((int) this.num2), 8);
+			int num1 = (int) this.num1;
+			int num2 = (int) this.num2;
 			int resultado = 0;
 
-			// Realizar la operación según el operador
 			switch (this.operation) {
 			case '+':
 				resultado = num1 + num2;
@@ -479,14 +540,14 @@ public class Engine extends JFrame implements ActionListener {
 			case '-':
 				resultado = num1 - num2;
 				break;
-			case 'x':
+			case '*':
 				resultado = num1 * num2;
 				break;
 			case '/':
 				if (num2 != 0) {
 					resultado = num1 / num2;
 				} else {
-					this.display.setText("Error");
+					this.display.setText("Error: División por cero");
 					return;
 				}
 				break;
@@ -495,26 +556,19 @@ public class Engine extends JFrame implements ActionListener {
 				return;
 			}
 
-			// Mostrar el resultado en binario
-			this.result = Integer.parseInt(Integer.toOctalString(resultado), 2);
+			// Mostrar el resultado en octal
 			this.display.setText(Integer.toOctalString(resultado));
 
 		} catch (NumberFormatException e) {
-			this.display.setText("Error binario");
+			this.display.setText("Error en la conversión octal");
 		}
 	}
 
-	/**
-	 * Realiza la operación en formato binario.
-	 */
 	public void operationBinario() {
 		try {
-			// Convertir los números binarios a enteros decimales
-			int num1 = Integer.parseInt(Integer.toString((int) this.num1), 2);
-			int num2 = Integer.parseInt(Integer.toString((int) this.num2), 2);
+			int num1 = (int) this.num1;
+			int num2 = (int) this.num2;
 			int resultado = 0;
-
-			// Realizar la operación según el operador
 			switch (this.operation) {
 			case '+':
 				resultado = num1 + num2;
@@ -522,14 +576,14 @@ public class Engine extends JFrame implements ActionListener {
 			case '-':
 				resultado = num1 - num2;
 				break;
-			case 'x':
+			case '*':
 				resultado = num1 * num2;
 				break;
 			case '/':
 				if (num2 != 0) {
 					resultado = num1 / num2;
 				} else {
-					this.display.setText("Error");
+					this.display.setText("Error: División por cero");
 					return;
 				}
 				break;
@@ -539,35 +593,34 @@ public class Engine extends JFrame implements ActionListener {
 			}
 
 			// Mostrar el resultado en binario
-			this.result = Integer.parseInt(Integer.toBinaryString(resultado), 2);
 			this.display.setText(Integer.toBinaryString(resultado));
 
 		} catch (NumberFormatException e) {
-			this.display.setText("Error binario");
+			this.display.setText("Error en la conversión binaria");
 		}
 	}
 
 	/**
 	 * Convierte el número actual del display a decimal según la base seleccionada.
 	 * 
-	 * @return Valor convertido a decimal.
+	 * @return Valor convertido a decimal, o -1 si hubo un error.
 	 */
 	public int pasarDecimal() {
-		String text = display.getText();
+		String text = display.getText().trim(); // Eliminar posibles espacios en blanco
 		try {
-			switch (baseActual) {
+			switch (this.baseActual) {
 			case B2:
 				return Integer.parseInt(text, 2); // Convierte desde binario
 			case B8:
 				return Integer.parseInt(text, 8); // Convierte desde octal
 			case B16:
 				return Integer.parseInt(text, 16); // Convierte desde hexadecimal
+			case B10:
 			default:
-				return Integer.parseInt(text); // Base decimal
+				return Integer.parseInt(text); // Convierte desde decimal
 			}
 		} catch (NumberFormatException e) {
 			display.setText("Error al convertir");
-
 		}
 		return 0;
 	}

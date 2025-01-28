@@ -305,7 +305,7 @@ public class Engine extends JFrame implements ActionListener {
 			JPanel panel = new JPanel(new FlowLayout());
 			JLabel label = new JLabel("Desarrollado por Adrián Escolar");
 
-			label.setFont(new Font("Arial", Font.PLAIN, 16));
+			label.setFont(new Font("Arial", Font.BOLD, 16));
 			panel.add(label);
 
 			ownerWindow.add(panel);
@@ -320,7 +320,7 @@ public class Engine extends JFrame implements ActionListener {
 			JLabel label = new JLabel("<html>Esta calculadora admite operaciones con números:<br>" + "- Positivos<br>"
 					+ "- Negativos<br>" + "- Diferentes bases (B2, B8, B10, B16)<br>"
 					+ "Además, soporta números hexadecimales.<br></html>");
-			label.setFont(new Font("Arial", Font.PLAIN, 16));
+			label.setFont(new Font("Arial", Font.BOLD, 16));
 			panel.add(label, BorderLayout.CENTER);
 
 			infoWindow.add(panel);
@@ -401,7 +401,7 @@ public class Engine extends JFrame implements ActionListener {
 
 	public String cambioBase(Object operador) {
 	    if (display.getText().trim().isEmpty()) {
-	        actualizarBase(getBaseFromOperador(operador));
+	        actualizarBase(getBase(operador));
 	        return "";
 	    }
 	    
@@ -428,7 +428,7 @@ public class Engine extends JFrame implements ActionListener {
 	}
 	
 	// Método auxiliar para obtener la base del operador
-	private BaseActual getBaseFromOperador(Object operador) {
+	public BaseActual getBase(Object operador) {
 	    if (operador == B2) return BaseActual.B2;
 	    if (operador == B8) return BaseActual.B8;
 	    if (operador == B16) return BaseActual.B16;

@@ -5,25 +5,33 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * La clase Engine es una calculadora gráfica que soporta operaciones
+ * aritméticas básicas en diferentes bases numéricas (binaria, octal, decimal,
+ * hexadecimal). La interfaz permite realizar cálculos y convertir entre
+ * diferentes bases.
+ */
 public class Engine extends JFrame implements ActionListener {
+	// Paneles de la interfaz de usuario
 	private JPanel contentPanel, panelSur, panelNorte, PanelCasio, PanelBase, displayPanel, buttonPanel;
 	private JTextField display;
+
+	// Botones para la calculadora
 	private JButton n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, dividir, multiplicar, restar, suma, igual, borrarnumero,
 			reset, info, owner, casio;
 	private JButton B2, B8, B10, B16;
 	private JButton A, B, C, D, E, F;
 
+	// Enumeraciones para el tipo de botones y la base actual
 	private enum ButtonType {
 		REGULAR, OPERATOR, BASE, MARCA, HEXADECIMAL, INFO
 	}
 
 	private enum BaseActual {
 		B2, B8, B10, B16
-
 	}
 
 	private BaseActual baseActual = BaseActual.B10;
@@ -33,16 +41,17 @@ public class Engine extends JFrame implements ActionListener {
 	private char operation;
 	private String numero16, numero17;
 
-	/*
-	 * Constructora de la clase
+	/**
+	 * Constructor de la clase Engine. Inicializa la interfaz gráfica de la
+	 * calculadora y configura los botones y sus eventos.
 	 */
 	public Engine() {
 		this.setSettings();
 		this.addActionEvent();
 	}
 
-	/*
-	 * Metodo que agrega un AcctionListener a los botones
+	/**
+	 * Agrega los ActionListener a todos los botones de la interfaz de usuario.
 	 */
 	public void addActionEvent() {
 		JButton[] buttons = { this.n7, this.n8, this.n9, this.dividir, this.n4, this.n5, this.n6, this.multiplicar,
@@ -54,8 +63,9 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
-	/*
-	 * Metodo para configurar los parametros principales de la calculadora
+	/**
+	 * Configura los parámetros principales de la calculadora, como el tamaño, la
+	 * disposición de los paneles y la configuración inicial de la interfaz.
 	 */
 	public void setSettings() {
 		this.setSize(400, 450);
@@ -162,8 +172,8 @@ public class Engine extends JFrame implements ActionListener {
 		this.setVisible(true);
 	}
 
-	/*
-	 * Metodo que independientemente del operador te realiza una operacion u otra
+	/**
+	 * Realiza la operación aritmética básica basada en el operador definido.
 	 */
 	public void operation() {
 		switch (this.operation) {
@@ -185,9 +195,8 @@ public class Engine extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * Método para establecer las características visuales de los botones (colores,
-	 * fuente, etc.) según el tipo de botón (Regular, Operador, Base, Hexadecimal,
-	 * Info).
+	 * Establece las características visuales de los botones (colores, fuente, etc.)
+	 * según el tipo de botón.
 	 * 
 	 * @param _button El botón al que se le configurarán las características.
 	 * @param _type   El tipo de botón, utilizado para definir el estilo visual.
@@ -222,13 +231,18 @@ public class Engine extends JFrame implements ActionListener {
 		_button.setBorderPainted(false);
 	}
 
-	/*
-	 * Metodo que reseta el display
+	/**
+	 * Resetea el texto del display de la calculadora.
 	 */
 	public void resetDisplay() {
 		display.setText("");
 	}
 
+	/**
+	 * Maneja los eventos de acción cuando se presionan los botones de la
+	 * calculadora. Realiza las operaciones aritméticas, cambios de base y muestra
+	 * información relevante.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object operador = e.getSource();
@@ -362,77 +376,97 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Actualiza la base de la calculadora y ajusta la interfaz para mostrar la base
+	 * seleccionada.
+	 * 
+	 * @param base La base seleccionada (binaria, octal, decimal o hexadecimal).
+	 */
 	public void actualizarBase(BaseActual base) {
-	    this.display.setText("");
-	    
-	    this.baseActual = base;
-	    this.PanelBase.removeAll(); // Limpia el panel base
+		this.display.setText("");
 
-	    String mensajeBase;
-	    switch (base) {
-	        case B2:
-	            mensajeBase = "Estás en base binaria";
-	            break;
-	        case B8:
-	            mensajeBase = "Estás en base octal";
-	            break;
-	        case B10:
-	            mensajeBase = "Estás en base decimal";
-	            break;
-	        case B16:
-	            mensajeBase = "Estás en base hexadecimal";
-	            break;
-	        default:
-	            mensajeBase = "Error en la base";
-	    }
+		this.baseActual = base;
+		this.PanelBase.removeAll(); // Limpia el panel base
 
-	    infobase = new JLabel(mensajeBase);
-	    infobase.setFont(new Font("Arial", Font.BOLD, 14));
-	    this.PanelBase.add(infobase);
+		String mensajeBase;
+		switch (base) {
+		case B2:
+			mensajeBase = "Estás en base binaria";
+			break;
+		case B8:
+			mensajeBase = "Estás en base octal";
+			break;
+		case B10:
+			mensajeBase = "Estás en base decimal";
+			break;
+		case B16:
+			mensajeBase = "Estás en base hexadecimal";
+			break;
+		default:
+			mensajeBase = "Error en la base";
+		}
 
-	    this.PanelBase.revalidate(); // Actualiza el panel
-	    this.PanelBase.repaint();
-	    
-	    // Resetear los valores de operación
-	    num1 = 0;
-	    num2 = 0;
-	    operation = '\0';
+		infobase = new JLabel(mensajeBase);
+		infobase.setFont(new Font("Arial", Font.BOLD, 14));
+		this.PanelBase.add(infobase);
+
+		this.PanelBase.revalidate(); // Actualiza el panel
+		this.PanelBase.repaint();
+
+		// Resetear los valores de operación
+		num1 = 0;
+		num2 = 0;
+		operation = '\0';
 	}
 
+	/**
+	 * Metodo que cambia de base
+	 * 
+	 * @param operador
+	 * @return
+	 */
 	public String cambioBase(Object operador) {
-	    if (display.getText().trim().isEmpty()) {
-	        actualizarBase(getBase(operador));
-	        return "";
-	    }
-	    
-	    int number = pasarDecimal(); // Convierte el valor actual a decimal
-	    String resultado = "";
-	    try {
-	        if (operador == B2) {
-	            actualizarBase(BaseActual.B2);
-	            return Integer.toBinaryString(number);
-	        } else if (operador == B8) {
-	            actualizarBase(BaseActual.B8);
-	            return Integer.toOctalString(number);
-	        } else if (operador == B10) {
-	            actualizarBase(BaseActual.B10);
-	            return Integer.toString(number);
-	        } else if (operador == B16) {
-	            actualizarBase(BaseActual.B16);
-	            return Integer.toHexString(number).toUpperCase();
-	        }
-	    } catch (NumberFormatException e) {
-	        this.display.setText("Base no encontrada");
-	    }
-	    return resultado;
+		if (display.getText().trim().isEmpty()) {
+			actualizarBase(getBase(operador));
+			return "";
+		}
+
+		int number = pasarDecimal(); // Convierte el valor actual a decimal
+		String resultado = "";
+		try {
+			if (operador == B2) {
+				actualizarBase(BaseActual.B2);
+				return Integer.toBinaryString(number);
+			} else if (operador == B8) {
+				actualizarBase(BaseActual.B8);
+				return Integer.toOctalString(number);
+			} else if (operador == B10) {
+				actualizarBase(BaseActual.B10);
+				return Integer.toString(number);
+			} else if (operador == B16) {
+				actualizarBase(BaseActual.B16);
+				return Integer.toHexString(number).toUpperCase();
+			}
+		} catch (NumberFormatException e) {
+			this.display.setText("Base no encontrada");
+		}
+		return resultado;
 	}
-	
-	// Método auxiliar para obtener la base del operador
+
+	/**
+	 * Método auxiliar para obtener la base del operador
+	 * 
+	 * @param operador
+	 * @return
+	 */
 	public BaseActual getBase(Object operador) {
-	    if (operador == B2) return BaseActual.B2;
-	    if (operador == B8) return BaseActual.B8;
-	    if (operador == B16) return BaseActual.B16;
-	    return BaseActual.B10; // default
+		if (operador == B2)
+			return BaseActual.B2;
+		if (operador == B8)
+			return BaseActual.B8;
+		if (operador == B16)
+			return BaseActual.B16;
+		return BaseActual.B10; // default
 	}
 
 	/**
@@ -457,44 +491,47 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Metodo que calcula en base Hexadecimal
+	 */
 	public void operationHexadecimal() {
-	    try {
-	        int num1 = (int) this.num1;
-	        int num2 = (int) this.num2;
-	        int resultado = 0;
-	        switch (this.operation) {
-	            case '+':
-	                resultado = num1 + num2;
-	                break;
-	            case '-':
-	                resultado = num1 - num2;
-	                break;
-	            case '*':
-	                resultado = num1 * num2;
-	                break;
-	            case '/':
-	                if (num2 != 0) {
-	                    resultado = num1 / num2;
-	                } else {
-	                    this.display.setText("Error: División por cero");
-	                    return;
-	                }
-	                break;
-	            default:
-	                this.display.setText("Operación inválida");
-	                return;
-	        }
+		try {
+			int num1 = (int) this.num1;
+			int num2 = (int) this.num2;
+			int resultado = 0;
+			switch (this.operation) {
+			case '+':
+				resultado = num1 + num2;
+				break;
+			case '-':
+				resultado = num1 - num2;
+				break;
+			case '*':
+				resultado = num1 * num2;
+				break;
+			case '/':
+				if (num2 != 0) {
+					resultado = num1 / num2;
+				} else {
+					this.display.setText("Error: División por cero");
+					return;
+				}
+				break;
+			default:
+				this.display.setText("Operación inválida");
+				return;
+			}
 
-	        // Mostrar el resultado en hexadecimal y convertir a mayúsculas
-	        this.display.setText(Integer.toHexString(resultado).toUpperCase());
+			// Mostrar el resultado en hexadecimal y convertir a mayúsculas
+			this.display.setText(Integer.toHexString(resultado).toUpperCase());
 
-	    } catch (NumberFormatException e) {
-	        this.display.setText("Error en la conversión hexadecimal");
-	    }
+		} catch (NumberFormatException e) {
+			this.display.setText("Error en la conversión hexadecimal");
+		}
 	}
 
 	/**
-	 * Realiza la operación en formato decimal.
+	 * Metodo que calcula en base Hexadecimal
 	 */
 	public void operationDecimal() {
 		try {
@@ -527,6 +564,9 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Metodo que calcula en base Octal
+	 */
 	public void operationOctal() {
 		try {
 			int num1 = (int) this.num1;
@@ -564,6 +604,9 @@ public class Engine extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Metodo que calcula en base Binaria
+	 */
 	public void operationBinario() {
 		try {
 			int num1 = (int) this.num1;

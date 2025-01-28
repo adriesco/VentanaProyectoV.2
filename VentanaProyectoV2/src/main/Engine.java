@@ -99,7 +99,7 @@ public class Engine extends JFrame implements ActionListener {
 		this.display.setBorder(BorderFactory.createLineBorder(new Color(135, 206, 235), 1));
 		this.displayPanel.add(this.display);
 
-		JLabel baseLabel = new JLabel("Estas en Base:Decimal");
+		JLabel baseLabel = new JLabel("");
 		baseLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		this.PanelBase.add(baseLabel);
 
@@ -349,12 +349,18 @@ public class Engine extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}else if(operador == this.borrarnumero) {
+			String text = display.getText();
+			if (text.length() > 0) {
+				display.setText(text.substring(0, text.length() - 1));// Si hay un caracter en el display lo borra
+			}
+			
 		} else {
 			// Para números y otros caracteres
 			String currentText = display.getText();
 			boolean isValidInput = true;
 
-			// Validar entrada según la base actual
+			// Validar entrada según la base actual.
 			switch (baseActual) {
 			case B2:
 				isValidInput = inputText.matches("[0-1]");
@@ -542,7 +548,7 @@ public class Engine extends JFrame implements ActionListener {
 			case '-':
 				result = num1 - num2;
 				break;
-			case 'x':
+			case '*':
 				result = num1 * num2;
 				break;
 			case '/':

@@ -666,7 +666,7 @@ public class Engine extends JFrame implements ActionListener {
 				return Integer.parseInt(text, 16); // Convierte desde hexadecimal
 			case B10:
 			default:
-				return Integer.parseInt(text); // Convierte desde decimal
+				return Integer.parseInt(text); // Convierte desde decimal.
 			}
 		} catch (NumberFormatException e) {
 			display.setText("Error al convertir");
